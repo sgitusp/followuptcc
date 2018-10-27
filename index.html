@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+
+<head>
+
+    <meta charset="utf-8" />
+	<title>Follow Up TCC</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script src="https://www.gstatic.com/charts/loader.js"></script>
+	
+	<style>
+
+		body {font-size: 100%;padding: 1%;font-family:Monospace;}
+        h3 {text-align: center;font-size: 2em;}
+        p {font-size: 2em;}
+        .buttontop {font-size: 1.2em;font-weight: bold;padding: 10px 20px;cursor: pointer;margin: 4px 2px;border: 1px solid black;color: rgb(0, 0, 0);background-color: rgb(255, 255, 255);}
+        #fechargraficogeral {z-index: 2; position: fixed;display: none;}
+		.button {font-weight: bold;padding: 10px 20px;cursor: pointer;margin: 4px 2px;border: 1px solid black;transition: 0.5s;box-shadow: 5px 5px 0px -1px rgba(0,0,0,0.75);color: rgb(255, 255, 255);}
+		.button{background-color: rgb(221, 60, 60);}
+		.button:hover {background-color: rgb(48, 133, 73);box-shadow: 3px 3px 0px -1px rgba(0,0,0,0.75);}
+		.field {background-color: rgb(238, 238, 238);padding: 10px;margin: 0% 5% 0% 5%;}
+        #codigoaluno {font-weight: bold;padding: 10px 20px;}
+        #retornoaluno , #retornofiltro {background-color: rgb(191, 190, 248);text-align: left;padding: 10px;margin: 0% 5% 0% 5%;}
+		#tutorial {text-align: center;background-color: blueviolet;color: white;position: fixed;display: none;top: 5%;left: 5%;right: 5%;bottom: 5%;background-color: rgba(46, 13, 13, 0.95);z-index: 1;overflow:auto;}
+		#offhelp {z-index: 2;position: fixed;top: 10%;right: 10%;font-size: 4em;cursor: pointer;}
+        #graficogeral {display: none;text-align: center;}
+
+	</style>
+  
+    <script>
+        
+        var spreadsheetID = "1XpAPUoP6r7YP3K5Fkstsf97Yp2oHooqK7Yke4MpFYQM";
+        var sheetID = "1";
+        var URL = "https://spreadsheets.google.com/feeds/list/" + spreadsheetID + "/" + sheetID + "/public/values?alt=json";
+        console.log(URL);
+        
+        var JSONdata;
+
+        $.getJSON(URL, function(JSONdata) {editJSON(JSONdata);}); // chama funcao para manipular JSONdata organizar o novo cleanJSON
+        console.log(JSONdata);
+        
+        /* *****************************************************************
+        // acesso ao ALUNO de indice 4 (retorna Aluno 5):
+            console.log(JSONdata.feed.entry[4].gsx$aluno.$t);
+        // acesso ao ANO do ALUNO 5:
+            console.log(JSONdata.feed.entry[4].gsx$ano.$t);
+        // acesso a FASE do ALUNO 5:
+            console.log(JSONdata.feed.entry[4].gsx$fase.$t);
+        // acesso a ENTREGA 1 do ALUNO 5 (retorna 5%):
+            console.log(JSONdata.feed.entry[4].gsx$entrega3até20.$t);
+        // acesso ao PERCENTUAL CONCLUIDO do ALUNO 5 (retorna 79%):
+            console.log(JSONdata.feed.entry[4].gsx$percentualconcluido.$t);
+        // acesso ao COMENTÁRIO feito sobre o tcc do ALUNO 5:
+            console.log(JSONdata.feed.entry[4].gsx$comentário.$t);
+        ***************************************************************** */
+
+        var cleanJSON = {}; // novo JSON, resultado da manipulacao para melhorar o acesso
+
+        function editJSON(JSONdata){    
+
+            for (var i=0; i<JSONdata.feed.entry.length; i++){
+                cleanJSON[i] = {
+                    aluno: JSONdata.feed.entry[i].gsx$aluno.$t,
+                    ano: JSONdata.feed.entry[i].gsx$ano.$t,
+                    fase: parseInt(JSONdata.feed.entry[i].gsx$fase.$t),
+                    turma: JSONdata.feed.entry[i].gsx$turma.$t,
+                    entrega1: parseInt(JSONdata.feed.entry[i].gsx$entrega1até20.$t),
+                    entrega2: parseInt(JSONdata.feed.entry[i].gsx$entrega2até20.$t),
+                    entrega3: parseInt(JSONdata.feed.entry[i].gsx$entrega3até20.$t),
+                    entrega4: parseInt(JSONdata.feed.entry[i].gsx$entrega4até20.$t),
+                    entrega5: parseInt(JSONdata.feed.entry[i].gsx$entrega5até20.$t),
+                    percentualconcluido: parseInt(JSONdata.feed.entry[i].gsx$percentualconcluido.$t),
+                    comentario: JSONdata.feed.entry[i].gsx$comentário.$t,
+                    anexoimagem: JSONdata.feed.entry[i].gsx$anexoimagem.$t
+                };
+            }
+            console.log(cleanJSON);
+        };
+        
+        function search(){
+
+            document.getElementById("retornoaluno").style.backgroundColor = "rgb(191, 190, 248)";
+            document.getElementById("retornoaluno").style.color = "black";
+
+            var alunoMatricula = document.getElementById("codigoaluno").value;
+            var parametrosuser =[['Progresso', 'Entrega 1', 'Entrega 2', 'Entrega 3', 'Entrega 4', 'Entrega 5', {role: 'annotation'}]];
+            
+            for (var i=0; i<Object.keys(cleanJSON).length; i++){
+                if (i==0){
+                    document.getElementById("retornoaluno").innerHTML = "";
+                }
+                if (cleanJSON[i].aluno == alunoMatricula){
+                    document.getElementById("retornoaluno").innerHTML += " Matrícula: <b>" + cleanJSON[i].aluno + "</b>, Ano: " + cleanJSON[i].ano + ", Fase: " + cleanJSON[i].fase + "<br><b> Progresso do TCC: " + cleanJSON[i].percentualconcluido + "%</b>, <br><br><i>Observação:</i><br><br>" + cleanJSON[i].comentario + "<br><br><div style='text-align: center;'><img src='" + cleanJSON[i].anexoimagem + "'alt='Imagem do jogo' width='200'><div><br><hr><br>";
+                    // cria um vetor da forma necessaria para gerar o grafico do usuario
+                    parametrosuser.push([cleanJSON[i].ano, cleanJSON[i].entrega1, cleanJSON[i].entrega2, cleanJSON[i].entrega3, cleanJSON[i].entrega4, cleanJSON[i].entrega5, (cleanJSON[i].percentualconcluido).toString()]);
+                }
+            }
+            // console.log(parametrosuser);
+            if (document.getElementById("retornoaluno").innerHTML == ""){
+                document.getElementById("retornoaluno").style.backgroundColor = "black";
+                document.getElementById("retornoaluno").style.color = "rgb(0,255,0)";
+                document.getElementById("retornoaluno").innerHTML = "Forneça um código válido.<br>Verifique se o código inserido possui todas as letras em maiúsculo e três números.<br>Exemplo: ALUNO123";
+                document.getElementById("graficoindividual").innerHTML = "";
+            }
+            if (parametrosuser.length>1){
+                drawChart(parametrosuser, alunoMatricula); // chama função para desenhar o grafico com os parametros do usuario
+            }
+        }
+
+        // fonte: https://developers.google.com/chart/interactive/docs/gallery/barchart
+        // Load the Visualization API and the corechart package.
+        google.charts.load('current', {'packages':['corechart']});
+        
+        // Callback that creates and populates a data table, instantiates the pie chart, passes in the data and draws it.
+        function drawChart(parametrosuser, titleuser) { // Create the data table.
+            var data = new google.visualization.arrayToDataTable(parametrosuser);
+            var options = {
+                title: titleuser,
+                legend: {position: 'top', maxLines: 3}, 
+                bar: { groupWidth: '40%' }, 
+                isStacked: true, 
+                hAxis: { gridlines: {count: 2}, viewWindow: {max:100,min:0}},
+            };
+            var chart = new google.visualization.BarChart(document.getElementById('graficoindividual')); // Instantiate and draw our chart, passing in some options.
+            chart.draw(data, options);
+        }
+        
+        function filter(){
+
+            document.getElementById("retornofiltro").style.backgroundColor = "rgb(191, 190, 248)";
+            document.getElementById("retornofiltro").style.color = "black";
+
+            var filterJSON = {}; // novo JSON sempre criado quando chamada a função, resultado da aplicação dos critérios selecionados para o filtro
+            var anoSelect = document.getElementById("anofiltro").value;
+            var faseSelect = document.getElementById("fasefiltro").value;;
+            var faixaSelect = document.getElementById("faixafiltro").value;
+            
+            // criando o filterJSON
+            for (var i=0; i<Object.keys(cleanJSON).length; i++){
+                if (cleanJSON[i].ano == anoSelect && cleanJSON[i].fase == faseSelect && cleanJSON[i].percentualconcluido <= faixaSelect){
+                    filterJSON[i] = {nome: cleanJSON[i].aluno, fase: cleanJSON[i].fase, ano: cleanJSON[i].ano, percentual: cleanJSON[i].percentualconcluido};
+                }
+            }
+            console.log(filterJSON);
+            document.getElementById("retornofiltro").innerHTML = "Filtros: Ano = " + anoSelect + ", Fase = " + faseSelect + ", Faixa de progresso = até " + faixaSelect +"%<br>";
+
+            if (Object.keys(filterJSON).length == 0){
+                document.getElementById("retornofiltro").style.backgroundColor = "black";
+                document.getElementById("retornofiltro").style.color = "rgb(0, 255, 0)";
+                document.getElementById("retornofiltro").innerHTML += "<br>Não existem alunos com os filtros aplicados.<br>";
+            }
+            if (Object.keys(filterJSON).length != 0){
+                document.getElementById("retornofiltro").innerHTML += "<br><i>Existe(m) " + Object.keys(filterJSON).length + " aluno(s) com os filtros aplicados.</i><br><br>";            
+            }
+            for (var i=0; i<Object.keys(cleanJSON).length; i++){
+                if (filterJSON[i]){ // retorna true se existe o indice i (que vai ate o length de cleanJSON) em filterJSON
+                    document.getElementById("retornofiltro").innerHTML += " Matrícula: <b>" + filterJSON[i].nome + "</b>, Fase: " + filterJSON[i].fase + ", Ano: " + filterJSON[i].ano + ", Progresso do TCC: " + filterJSON[i].percentual + "%<br><br>";
+                }
+            }
+        }
+        
+        function on(id){document.getElementById(id).style.display = "block";}
+        
+        function off(id) {document.getElementById(id).style.display = "none";}
+
+    </script>
+  
+</head>
+
+<body>
+
+	<!-- Botão de ajuda/tutorial sobre o uso da página -->
+
+    <button class="buttontop" onclick="on('tutorial')">Tutorial</button>
+    <button class="buttontop" onclick="on('graficogeral');on('fechargraficogeral')">Visualizar andamento geral</button>
+    <button class="buttontop" id="fechargraficogeral" onclick="off('graficogeral');off('fechargraficogeral')">Fechar gráfico</button>
+   
+    <div id="tutorial">
+
+		<div id='offhelp' onclick="off('tutorial')" title='Fechar'>&times;</div>
+		<p><b>TUTORIAL</b></p>
+		<div style="text-align: justify;padding: 3%;">
+    		Filtrar por código de matrícula: <br>
+			<ul>
+				<li>Simplesmente digite o código de algum aluno cadastrado. Os códigos dos alunos cadastrados podem ser obtidos pela leitura do eixo vertical do gráfico.</li>
+				<li>Por exemplo: ALUNO123</li>
+				<li>Caso consulte ALUNO003 ou ALUNO147, poderá observar que existem mais de uma entrada cadastrada para o mesmo aluno, isso é possível pelo fato do aluno ter sido cadastrado em diferentes semestres/fases, e em cada fase foi feito um TCC. Dessa forma, é apresentado um histórico de entregas do aluno.</li>
+			</ul>
+			Filtrar utilizando Ano, Fase e Percentual de progresso do TCC: <br>
+			<ul>
+				<li>Para cada tipo de filtro, você poderá selecionar apenas uma opção.</li>
+				<li>Por exemplo: Ano = 2018.2, Fase = 1, Progresso do TCC = Menor que 25%</li>
+				<li>Ao realizar a pesquisa do exemplo acima, você perceberá que existem alguns alunos em situação crítica de entrega do TCC (progresso inferior a 25%).</li>
+				<li>Caso utilize o ano 2019.1 como filtro, perceberá que existem alguns alunos de diferentes fases com progresso de 0%, pois esse ano ainda não iniciou e consequentemente nada foi entregue.</li>
+			</ul>
+			<hr>
+			Esta página faz uma consulta a uma planilha montada no Google Sheets e disponibiliza seus dados, filtrando-os conforme a escolha do usuário.<br>O gráfico apresentado foi criado nesta mesma planilha, e é disponibilizado aqui conforme é configurado no Google Sheets.<br>Como o gráfico é gerado a partir dos dados da planilha, conforme aplicamos filtros nas colunas dos dados, o gráfico se altera e em alguns minutos já podemos ter esta página atualizada.<br>Isso significa que podemos filtrar as colunas para que o gráfico (visualmente) apresente apenas os atuais alunos (2018.2, por exemplo), mas mantendo o mesmo acesso à todos os alunos registrados na planilha, pois o filtro nas colunas do Google Sheets não inviabiliza a consulta à TODOS OS DADOS da planilha por meio desta página.
+			<hr>
+			O objetivo desta ferramenta é o acompanhamento dos TCCs durante o desenvolvimento do curso.<br>Ao facilitar a obtenção de dados sobre os alunos em <u>situação crítica</u> de entrega do TCC, a escola poderá evitar situações desagradáveis nos momentos finais do curso, além de melhorar o engajamento dos alunos com o TCC e fazer cobranças mais direcionadas.<br>O link para esta página pode ser disponibilizado para os clientes, descentralizando as cobranças sobre o TCC.<br>A visualização do padrão de cores e a largura das barras referentes a cada entrega possibilitam a comparação das notas obtidas entre os alunos.
+        </div>
+        
+	</div>
+
+	<div>
+        <!-- Gráfico geral de acompanhamento, importado do Google Sheets -->
+        <div id="graficogeral">
+            <br><br>
+            <iframe width="836" height="1864" seamless frameborder="0" scrolling="no" src="https://docs.google.com/spreadsheets/d/e/2PACX-1vQYTHYPsSFR2yBf1cDZr_twwACLzNZDuPChE--LWiBSXfj5OpEQilrCRym2Tj0cE63O40sNdzCOxOlb/pubchart?oid=1701544786&amp;format=interactive"></iframe>
+            <hr>
+        </div>
+		
+		<h3>Consulta TCC</h3>
+		
+		<!-- Campo de pesquisa usando a matrícula -->
+
+        <div class="field">
+            <p>Pesquise utilizando o Código de Matrícula:</p>
+    		<div>
+                <input type="text" placeholder="Search..." id="codigoaluno"><button class="button" onclick="search()">PESQUISAR</button>
+                <div id="graficoindividual"></div>
+			</div>
+		</div>
+
+		<!-- Retorno da pesquisa -->
+
+		<div id="retornoaluno"></div>
+
+		<br>
+		<!-- Campo de pesquisa com o uso de filtros -->
+			
+        <div class="field">
+            <p>Pesquise utilizando filtros:</p>
+            
+                Ano:
+                <select id="anofiltro">
+                    <option value="2018.1">2018.1</option>
+                    <option value="2018.2">2018.2</option>
+                    <option value="2019.1">2019.1</option>
+                </select>
+                Fase:
+                <select id="fasefiltro">
+                    <option value="0">Fase 0</option>
+                    <option value="1">Fase 1</option>
+                    <option value="2">Fase 2</option>
+                    <option value="3">Fase 3</option>
+                    <option value="4">Fase 4</option>
+                    <option value="5">Fase 5</option>
+                </select>
+
+                Progresso do TCC:
+                <select id="faixafiltro">
+                    <option value="100">Menor que 100%</option>
+                    <option value="75">Menor que 75%</option>
+                    <option value="50">Menor que 50%</option>
+                    <option value="25">Menor que 25%</option>
+                </select>
+            
+			<button class="button" onclick="filter()">FILTRAR</button>
+			
+		</div>
+
+		<!-- Retorno da pesquisa utilizando filtros -->
+
+        <div id="retornofiltro"></div>
+
+    </div>
+    
+</body>
+
+</html>
