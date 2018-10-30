@@ -1,2 +1,2 @@
 # sgitusp
-Página para acompanhamento de TCCs
+Página para follow up de TCC.
