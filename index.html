@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!DOCTYPE <!DOCTYPE html>
 
 <head>
 
@@ -69,6 +69,7 @@
             for (var i=0; i<JSONdata.feed.entry.length; i++){
                 cleanJSON[i] = {
                     aluno: JSONdata.feed.entry[i].gsx$aluno.$t,
+					nome: JSONdata.feed.entry[i].gsx$nome.$t,
                     ano: JSONdata.feed.entry[i].gsx$ano.$t,
                     fase: JSONdata.feed.entry[i].gsx$fase.$t,
                     entrega1: parseInt(JSONdata.feed.entry[i].gsx$entrega1até20.$t),
@@ -98,7 +99,7 @@
                 if (i==0){
                     document.getElementById("retornoaluno").innerHTML = "";
                 }
-                if (cleanJSON[i].aluno == alunoMatricula){
+                if (cleanJSON[i].aluno == alunoMatricula || cleanJSON[i].nome == alunoMatricula){ // testa se o valor dado existe entre as matriculas ou nomes
                     document.getElementById("retornoaluno").innerHTML += " Matrícula: <b>" + cleanJSON[i].aluno + "</b>, Ano: " + cleanJSON[i].ano + ", Fase: " + cleanJSON[i].fase + "<br><b> Progresso do TCC: " + cleanJSON[i].percentualconcluido + "%</b>, <br><br><i>Observação:</i><br><br>" + cleanJSON[i].comentario + "<br><br><div style='text-align: center;'><img src='" + cleanJSON[i].anexoimagem + "'alt='Imagem do jogo' width='200'><div><br><hr><br>";
                     // cria um vetor da forma necessaria para gerar o grafico do usuario
                     parametrosuser.push([cleanJSON[i].ano, cleanJSON[i].entrega1, cleanJSON[i].entrega2, cleanJSON[i].entrega3, cleanJSON[i].entrega4, cleanJSON[i].entrega5, (cleanJSON[i].percentualconcluido).toString()]);
