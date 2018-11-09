@@ -69,7 +69,7 @@
             for (var i=0; i<JSONdata.feed.entry.length; i++){
                 cleanJSON[i] = {
                     aluno: JSONdata.feed.entry[i].gsx$aluno.$t,
-					nome: JSONdata.feed.entry[i].gsx$nome.$t,
+					nome: JSONdata.feed.entry[i].gsx$nome.$t.toUpperCase(), // torna o nome em maiusculas
                     ano: JSONdata.feed.entry[i].gsx$ano.$t,
                     fase: JSONdata.feed.entry[i].gsx$fase.$t,
                     entrega1: parseInt(JSONdata.feed.entry[i].gsx$entrega1até20.$t),
@@ -92,7 +92,7 @@
             document.getElementById("retornoaluno").style.backgroundColor = "rgb(175, 192, 219)";
             document.getElementById("retornoaluno").style.color = "black";
 
-            var alunoMatricula = document.getElementById("codigoaluno").value;
+            var alunoMatricula = document.getElementById("codigoaluno").value.toUpperCase(); // torna o valor digitado em maiusculas
             var parametrosuser =[['Progresso', 'Entrega 1', 'Entrega 2', 'Entrega 3', 'Entrega 4', 'Entrega 5', {role: 'annotation'}]];
             
             for (var i=0; i<Object.keys(cleanJSON).length; i++){
