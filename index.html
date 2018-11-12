@@ -10,7 +10,6 @@
     <link rel="shortcut icon" type="image/png" href="favicongeeks.ico"/>
 	
 	<style>
-
 		body {font-size: 100%;padding: 3%;font-family:Monospace;}
         h3 {text-align: center;font-size: 2em;}
         p {font-size: 2em;}
@@ -25,20 +24,17 @@
 		#tutorial {text-align: center;background-color: blueviolet;color: white;position: fixed;display: none;top: 5%;left: 5%;right: 5%;bottom: 5%;background-color: rgba(46, 13, 13, 0.95);z-index: 1;overflow:auto;}
 		#offhelp {z-index: 2;position: fixed;top: 10%;right: 10%;font-size: 4em;cursor: pointer;}
         #graficogeral {display: none;text-align: center;}
-
 	</style>
   
     <script>
         
         // Definindo a planilha
-
         var spreadsheetID = "1XpAPUoP6r7YP3K5Fkstsf97Yp2oHooqK7Yke4MpFYQM";
         var sheetID = "1";
         var URL = "https://spreadsheets.google.com/feeds/list/" + spreadsheetID + "/" + sheetID + "/public/values?alt=json";
         console.log("URL: ");console.log(URL);
         
         // usando jQuery para obter a planilha
-
         var JSONdata;
         $.getJSON(URL, function(JSONdata) { // chama funcao para manipular JSONdata organizar o novo cleanJSON
             editJSON(JSONdata);
@@ -60,12 +56,9 @@
         // acesso ao COMENTÁRIO feito sobre o tcc do ALUNO 5:
             console.log(JSONdata.feed.entry[4].gsx$comentário.$t);
         ***************************************************************** */
-
         // Função para "limpar" o JSON recebido pelo jQuery
-
         var cleanJSON = {}; // novo JSON, resultado da manipulacao para melhorar o acesso
         function editJSON(JSONdata){    
-
             for (var i=0; i<JSONdata.feed.entry.length; i++){
                 cleanJSON[i] = {
                     aluno: JSONdata.feed.entry[i].gsx$aluno.$t,
@@ -86,12 +79,9 @@
         };
         
         // Função para campo de pesquisa usando a matrícula/nome
-
         function search(){
-
             document.getElementById("retornoaluno").style.backgroundColor = "rgb(175, 192, 219)";
             document.getElementById("retornoaluno").style.color = "black";
-
             var alunoMatricula = document.getElementById("codigoaluno").value.toUpperCase(); // torna o valor digitado em maiusculas
             var parametrosuser =[['Progresso', 'Entrega 1', 'Entrega 2', 'Entrega 3', 'Entrega 4', 'Entrega 5', {role: 'annotation'}]];
             
@@ -100,13 +90,14 @@
                     document.getElementById("retornoaluno").innerHTML = "";
                 }
                 if (cleanJSON[i].aluno == alunoMatricula || cleanJSON[i].nome == alunoMatricula){ // testa se o valor dado existe entre as matriculas ou nomes
-                    document.getElementById("retornoaluno").innerHTML += " Matrícula: <b>" + cleanJSON[i].aluno + "</b>, Ano: " + cleanJSON[i].ano + ", Fase: " + cleanJSON[i].fase + "<br><b> Progresso do TCC: " + cleanJSON[i].percentualconcluido + "%</b>, <br><br><i>Observação:</i><br><br>" + cleanJSON[i].comentario + "<br><br><div style='text-align: center;'><img src='" + cleanJSON[i].anexoimagem + "'alt='Imagem do jogo' width='200'><div><br><hr><br>";
+					
+					var comments = cleanJSON[i].comentario.split("~"); //console.log(comments);
+                    document.getElementById("retornoaluno").innerHTML += " Matrícula: <b>" + cleanJSON[i].aluno + "</b>, Ano: " + cleanJSON[i].ano + ", Fase: " + cleanJSON[i].fase + "<br><b> Progresso do TCC: " + cleanJSON[i].percentualconcluido + "%</b>, <br><br><i>Observação:</i><br><br>" + comments[0] + "<br>" + comments[1] + "<br>" + comments[2] + "<br>" + comments[3] + "<br>" + comments[4] + "<br><br><div style='text-align: center;'><img src='" + cleanJSON[i].anexoimagem + "'alt='Imagem do jogo' width='200'><div><br><hr><br>";
                     // cria um vetor da forma necessaria para gerar o grafico do usuario
                     parametrosuser.push([cleanJSON[i].ano, cleanJSON[i].entrega1, cleanJSON[i].entrega2, cleanJSON[i].entrega3, cleanJSON[i].entrega4, cleanJSON[i].entrega5, (cleanJSON[i].percentualconcluido).toString()]);
                 }
             }
             // console.log(parametrosuser);
-
             if (document.getElementById("retornoaluno").innerHTML == ""){ // Se nao for fornecido nenhum texto na consulta
                 document.getElementById("retornoaluno").style.backgroundColor = "black";
                 document.getElementById("retornoaluno").style.color = "rgb(0,255,0)";
@@ -118,9 +109,7 @@
                 drawChart(parametrosuser, alunoMatricula); // chama função para desenhar o grafico com os parametros do usuario
             }
         }
-
         // Desenho do grafico individual da pesquisa por matricula/nome
-
         // fonte: https://developers.google.com/chart/interactive/docs/gallery/barchart
         // Load the Visualization API and the corechart package.
         google.charts.load('current', {'packages':['corechart']});
@@ -139,12 +128,9 @@
         }
         
         // Função para campo de pesquisa usando filtros
-
         function filter(){
-
             document.getElementById("retornofiltro").style.backgroundColor = "rgb(175, 192, 219)";
             document.getElementById("retornofiltro").style.color = "black";
-
             var filterJSON = {}; // novo JSON sempre criado quando chamada a função, resultado da aplicação dos critérios selecionados para o filtro
             // Recebe os valores das combobox dos filtros
             var anoSelect = document.getElementById("anofiltro").value;
@@ -159,7 +145,6 @@
             }
             console.log("filterJSON: ");console.log(filterJSON);
             document.getElementById("retornofiltro").innerHTML = "Filtros: Ano = " + anoSelect + ", Fase = " + faseSelect + ", Faixa de progresso = até " + faixaSelect +"%<br>";
-
             if (Object.keys(filterJSON).length == 0){ // Se nao existir alunos para os filtros aplicados
                 document.getElementById("retornofiltro").style.backgroundColor = "black";
                 document.getElementById("retornofiltro").style.color = "rgb(0, 255, 0)";
@@ -174,11 +159,9 @@
                 }
             }
         }
-
         // Funcoes para esconder/mostrar campos com ID
         function on(id){document.getElementById(id).style.display = "block";}
         function off(id) {document.getElementById(id).style.display = "none";}
-
     </script>
   
 </head>
